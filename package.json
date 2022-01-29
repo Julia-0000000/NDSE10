@@ -1,0 +1,23 @@
+{
+  "name": "ndse10",
+  "version": "1.0.0",
+  "description": "ndse hw 3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node -r dotenv/config index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Julia-0000000/NDSE10.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Julia-0000000/NDSE10/issues"
+  },
+  "homepage": "https://github.com/Julia-0000000/NDSE10#readme",
+  "devDependencies": {
+    "dotenv": "^14.3.2"
+  }
+}
