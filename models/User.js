@@ -2,10 +2,10 @@ const uidGenerator = require('node-unique-id-generator');
 
 class User {
   constructor({
-    login = '',
+    mail = '',
   }) {
     this.id = uidGenerator.generateUniqueId();
-    this.login = login;
+    this.mail = mail;
   }
 }
 

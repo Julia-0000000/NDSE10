@@ -8,6 +8,9 @@ const { User, Book } = require('./models');
 
 const store = {
   user: null,
+  users: [
+    { id: 1, mail: 'test@mail.ru' },
+  ],
   books: [],
 };
 
@@ -16,13 +19,23 @@ const app = express();
 app.use(formData.parse());
 
 app.post(`${process.env.API_ENDPOINT}user/login`, (req, res) => {
-  const { login } = req.body;
-  const newUser = new User({ login });
+  const { users } = store;
+  const { mail } = req.body;
+  const user = users.find(b => b.mail === mail);
 
-  store.user = newUser;
-
-  res.status(201);
-  res.json(newUser);
+  if (mail) {
+    if (user) {
+      store.user = user;
+      res.status(201);
+      res.json(user);
+    } else {
+      res.status(404);
+      res.json('User is not found');
+    }
+  } else {
+    res.status(400);
+    res.json('User mail is not found');
+  }
 });
 
 app.get(`${API_ENDPOINT}books/`, (req, res) => {
