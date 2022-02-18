@@ -1,0 +1,70 @@
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker pull busybox:latest
+latest: Pulling from library/busybox
+009932687766: Pull complete
+Digest: sha256:afcc7f1ac1b49db317a7196c902e61c6c3c4607d63599ee1a82d702d249a0ccb
+Status: Downloaded newer image for busybox:latest
+docker.io/library/busybox:latest
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker run --name pinger -d busybox ping -c 7 netology.ru
+5923f99ef0fdc3b0253498391f9d44ffd0fc1679f4bebe8573d99458357a8c98
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS                      PORTS     NAMES
+5923f99ef0fd   busybox   "ping -c 7 netology.…"   31 seconds ago   Exited (0) 23 seconds ago             pinger
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker logs pinger
+64 bytes from 104.22.41.171: seq=5 ttl=37 time=76.835 ms
+64 bytes from 104.22.41.171: seq=6 ttl=37 time=24.846 ms
+
+--- netology.ru ping statistics ---
+7 packets transmitted, 7 packets received, 0% packet loss
+round-trip min/avg/max = 18.592/74.987/184.848 ms
+PING netology.ru (104.22.41.171): 56 data bytes
+64 bytes from 104.22.41.171: seq=0 ttl=37 time=22.733 ms
+64 bytes from 104.22.41.171: seq=1 ttl=37 time=20.088 ms
+64 bytes from 104.22.41.171: seq=2 ttl=37 time=24.779 ms
+64 bytes from 104.22.41.171: seq=3 ttl=37 time=20.055 ms
+64 bytes from 104.22.41.171: seq=4 ttl=37 time=33.251 ms
+64 bytes from 104.22.41.171: seq=5 ttl=37 time=21.963 ms
+64 bytes from 104.22.41.171: seq=6 ttl=37 time=138.059 ms
+
+--- netology.ru ping statistics ---
+7 packets transmitted, 7 packets received, 0% packet loss
+round-trip min/avg/max = 20.055/40.132/138.059 ms
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker start pinger
+pinger
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
+5923f99ef0fd   busybox   "ping -c 7 netology.…"   6 minutes ago   Up 3 seconds             pinger
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker logs pinger
+PING netology.ru (104.22.41.171): 56 data bytes
+64 bytes from 104.22.41.171: seq=0 ttl=37 time=18.592 ms
+64 bytes from 104.22.41.171: seq=1 ttl=37 time=79.376 ms
+
+--- netology.ru ping statistics ---
+7 packets transmitted, 7 packets received, 0% packet loss
+round-trip min/avg/max = 20.055/40.132/138.059 ms
+PING netology.ru (104.22.41.171): 56 data bytes
+64 bytes from 104.22.41.171: seq=0 ttl=37 time=20.736 ms
+64 bytes from 104.22.41.171: seq=1 ttl=37 time=20.574 ms
+64 bytes from 104.22.41.171: seq=2 ttl=37 time=22.598 ms
+64 bytes from 104.22.41.171: seq=3 ttl=37 time=20.301 ms
+64 bytes from 104.22.41.171: seq=4 ttl=37 time=28.028 ms
+64 bytes from 104.22.41.171: seq=5 ttl=37 time=26.087 ms
+64 bytes from 104.22.41.171: seq=6 ttl=37 time=19.551 ms
+
+--- netology.ru ping statistics ---
+7 packets transmitted, 7 packets received, 0% packet loss
+round-trip min/avg/max = 19.551/22.553/28.028 ms
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker rm pinger
+pinger
+
+PS C:\Users\Юлия\Documents\Projects\njs-netology\NDSE10> docker rmi busybox
+Untagged: busybox:latest
+Untagged: busybox@sha256:afcc7f1ac1b49db317a7196c902e61c6c3c4607d63599ee1a82d702d249a0ccb
+Deleted: sha256:ec3f0931a6e6b6855d76b2d7b0be30e81860baccd891b2e243280bf1cd8ad710
+Deleted: sha256:d31505fd5050f6b96ca3268d1db58fc91ae561ddf14eaabc41d63ea2ef8c1c6d
