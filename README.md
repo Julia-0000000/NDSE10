@@ -1,6 +1,6 @@
 # NDSE10
 
-db.books.insertMany([
+```db.books.insertMany([
   {
     title: "book 1",
     description: "book description 1",
@@ -15,7 +15,7 @@ db.books.insertMany([
 
 db.books.find({
   title: {
-    $regex: ".\*<Текст поиска>.\*",
+    $regex: ".*<Текст поиска>.*",
     $options: "i"
   }
 })
@@ -24,3 +24,4 @@ db.books.updateOne(
   { _id: "<ID книги>" },
   { $set: { description: "<Текст описания>", authors: "<Текст авторов>" } }
 )
+```
