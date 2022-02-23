@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const PORT = process.env.PORT || 3000;
 const API_ENDPOINT = process.env.API_ENDPOINT || '';
@@ -21,7 +22,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
 
-console.log('f', __dirname + '/public');
 app.use('/public', express.static(__dirname + '/public'));
 
 app.use('/', indexRouter);
@@ -32,6 +32,27 @@ app.use(`${API_ENDPOINT}books`, bookApiRouter);
 
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const UserDB = process.env.DB_USERNAME || 'root';
+const PasswordDB = process.env.DB_PASSWORD || 'password';
+const NameDB = process.env.DB_NAME || 'books_database';
+const HostDb = process.env.DB_HOST || 'mongodb://localhost:27017/';
+
+async function start() {
+  try {
+    await mongoose.connect(HostDb, {
+      user: UserDB,
+      pass: PasswordDB,
+      dbName: NameDB,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+start();

@@ -1,34 +1,36 @@
 const express = require('express');
 const router = express.Router();
 
-const { Book } = require('../../models');
+const Book = require('../../models/Book');
 const fileMiddleware = require('../../middleware/file');
 
-const store = {
-  books: [],
-};
+router.get('/', async (req, res) => {
+  try {
+    const books = await Book.find();
 
-router.get('/', (req, res) => {
-  const { books } = store;
-
-  res.json(books);
-});
-
-router.get('/:id', (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-  const book = books.find(b => b.id === id);
-
-  if (book) {
-    res.json(book);
-  } else {
+    res.json(books);
+  } catch (e) {
+    console.error(e);
     res.status(404);
-    res.json('Book is not found');
+    res.json({ message: 'Book is not found' });
   }
 });
 
-router.post('/', fileMiddleware.single('fileBook'), (req, res) => {
-  const { books } = store;
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  let book;
+
+  try {
+    book = await Book.findById(id);
+
+    res.json(book);
+  } catch (e) {
+    console.error(e);
+    res.status(404).json({ message: 'Book is not found' });
+  }
+});
+
+router.post('/', fileMiddleware.single('fileBook'), async (req, res) => {
   const { title, description, authors, favorite, fileCover } = req.body;
   const book = new Book({
     title,
@@ -40,55 +42,46 @@ router.post('/', fileMiddleware.single('fileBook'), (req, res) => {
     fileBook: req.file ? req.file.path : '',
   });
 
-  books.push(book);
-
-  res.status(201);
-  res.json(book);
+  try {
+    await book.save();
+    res.status(201).json(book);
+  } catch (e) {
+    console.error(e);
+    res.status(502).json({ message: 'Book is not created' });
+  }
 });
 
-router.put('/:id', (req, res) => {
-  const { books } = store;
+router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { title, description, authors, favorite, fileCover, fileName } = req.body;
-  const bookIndex = books.findIndex(b => b.id === id);
 
-  if (bookIndex > -1) {
-    books[bookIndex] = {
-      ...books[bookIndex],
-      title: title === undefined ? books[bookIndex].title : title,
-      description: description === undefined ? books[bookIndex].description : description,
-      authors: authors === undefined ? books[bookIndex].authors : authors,
-      favorite: favorite === undefined ? books[bookIndex].favorite : favorite,
-      fileCover: fileCover === undefined ? books[bookIndex].fileCover : fileCover,
-      fileName: fileName === undefined ? books[bookIndex].fileName : fileName,
-    };
-    res.json(books[bookIndex]);
-  } else {
-    res.status(404);
-    res.json('Book is not found');
+  try {
+    const book = await Book.findByIdAndUpdate(id, { title, description, authors, favorite, fileCover, fileName});
+    res.json(book);
+  } catch (e) {
+    console.error(e);
+    res.status(502).json({ message: 'Book is not updated' });
   }
 });
 
-router.delete('/:id', (req, res) => {
-  const { books } = store;
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const bookIndex = books.findIndex(b => b.id === id);
 
-  if (bookIndex > -1) {
-    books.splice(bookIndex, 1);
+  try {
+    await Book.deleteOne({ _id: id });
     res.json(true);
-  } else {
-    res.status(404);
-    res.json('Book is not found');
+  } catch (e) {
+    console.error(e);
+    res.status(502).json({ message: 'Book is not deleted' });
   }
 });
 
-router.get('/:id/download', (req, res) => {
-  const { books } = store;
+router.get('/:id/download', async (req, res) => {
   const { id } = req.params;
-  const book = books.find(b => b.id === id);
+  let book;
 
-  if (book) {
+  try {
+    book = await Book.findById(id);
     if (book.fileBook) {
       const filename = book.fileName.split('.');
       const fileExt = filename[filename.length - 1];
@@ -98,12 +91,11 @@ router.get('/:id/download', (req, res) => {
         }
       });
     } else {
-      res.status(404);
-      res.json('Book file is not exist');
+      res.status(404).json({ message: 'Book file is not exist' });
     }
-  } else {
-    res.status(404);
-    res.json('Book is not found');
+  } catch (e) {
+    console.error(e);
+    res.status(404).json({ message: 'Book is not found' });
   }
 });
 

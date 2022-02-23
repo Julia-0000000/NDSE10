@@ -1,21 +1,24 @@
 const express = require('express');
 const router = express.Router();
 
-const { Book } = require('../models');
+const Book = require('../models/Book');
 const fileMiddleware = require('../middleware/file');
 
-const store = {
-  books: [],
-};
 const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'text/plain'].join(', ');
 
-router.get('/', (req, res) => {
-  const { books } = store;
+router.get('/', async (req, res) => {
+  try {
+    const books = await Book.find();
 
-  res.render('book/index', {
-    title: 'Books',
-    books,
-  });
+    res.render('book/index', {
+      title: 'Books',
+      books,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(404);
+    res.redirect('/404');
+  }
 });
 
 router.get('/create', (req, res) => {
@@ -26,8 +29,7 @@ router.get('/create', (req, res) => {
   });
 });
 
-router.post('/create', fileMiddleware.single('fileBook'), (req, res) => {
-  const { books } = store;
+router.post('/create', fileMiddleware.single('fileBook'), async (req, res) => {
   const { title, description, authors, favorite, fileCover } = req.body;
   const book = new Book({
     title,
@@ -39,88 +41,78 @@ router.post('/create', fileMiddleware.single('fileBook'), (req, res) => {
     fileBook: req.file ? req.file.path : '',
   });
 
-  books.push(book);
-
-  res.redirect('/books');
+  try {
+    await book.save();
+    res.redirect('/books');
+  } catch (e) {
+    console.error(e);
+  }
 });
 
-router.get('/update/:id', (req, res) => {
-  const { books } = store;
+router.get('/update/:id', async (req, res) => {
   const { id } = req.params;
-  const book = books.find(b => b.id === id);
+  let book;
 
-  if (book) {
+  try {
+    book = await Book.findById(id);
     res.render('book/update', {
       title: 'Book | update',
       book,
       allowedTypes,
     });
-  } else {
-    res.status(404);
-    res.redirect('/404');
+  } catch (e) {
+    console.error(e);
+    res.status(404).redirect('/404');
   }
 });
 
-router.post('/update/:id', fileMiddleware.single('fileBook'), (req, res) => {
-  const { books } = store;
+router.post('/update/:id', fileMiddleware.single('fileBook'), async (req, res) => {
   const { id } = req.params;
   const { title, description, authors, favorite, fileCover } = req.body;
-  const bookIndex = books.findIndex(b => b.id === id);
 
-  if (bookIndex > -1) {
-    books[bookIndex] = {
-      ...books[bookIndex],
-      title: title === undefined ? books[bookIndex].title : title,
-      description: description === undefined ? books[bookIndex].description : description,
-      authors: authors === undefined ? books[bookIndex].authors : authors,
-      favorite: favorite === undefined ? books[bookIndex].favorite : favorite,
-      fileCover: fileCover === undefined ? books[bookIndex].fileCover : fileCover,
-      fileName: req.file ? req.filename : books[bookIndex].fileName,
-      fileBook: req.file ? req.file.path : books[bookIndex].fileBook,
-    };
-    res.redirect('/books');
-  } else {
-    res.status(404);
-    res.redirect('/404');
+  try {
+    await Book.findByIdAndUpdate(id, { title, description, authors, favorite, fileCover});
+    res.redirect(`/books/${id}`);
+  } catch (e) {
+    console.error(e);
+    res.status(404).redirect('/404');
   }
 });
 
-router.post('/delete/:id', (req, res) => {
-  const { books } = store;
+router.post('/delete/:id', async (req, res) => {
   const { id } = req.params;
-  const bookIndex = books.findIndex(b => b.id === id);
 
-  if (bookIndex > -1) {
-    books.splice(bookIndex, 1);
+  try {
+    await Book.deleteOne({ _id: id });
     res.redirect('/books');
-  } else {
-    res.status(404);
-    res.redirect('/404');
+  } catch (e) {
+    console.error(e);
+    res.status(404).redirect('/404');
   }
 });
 
-router.get('/:id', (req, res) => {
-  const { books } = store;
+router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const book = books.find(b => b.id === id);
+  let book;
 
-  if (book) {
+  try {
+    book = await Book.findById(id);
     res.render('book/view', {
       title: 'book | view',
       book,
     });
-  } else {
-    res.status(404);
-    res.redirect('/404');
+  } catch (e) {
+    console.error(e);
+    res.status(404).redirect('/404');
   }
 });
 
-router.get('/:id/download', (req, res) => {
-  const { books } = store;
+router.get('/:id/download', async (req, res) => {
   const { id } = req.params;
-  const book = books.find(b => b.id === id);
+  let book;
 
-  if (book) {
+  try {
+    book = await Book.findById(id);
     if (book.fileBook) {
       const filename = book.fileName.split('.');
       const fileExt = filename[filename.length - 1];
@@ -133,9 +125,9 @@ router.get('/:id/download', (req, res) => {
       res.status(404);
       res.redirect('/404');
     }
-  } else {
-    res.status(404);
-    res.redirect('/404');
+  } catch (e) {
+    console.error(e);
+    res.status(404).redirect('/404');
   }
 });
 

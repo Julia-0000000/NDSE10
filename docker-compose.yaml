@@ -23,7 +23,7 @@ services:
     depends_on:
       - mongodb
 
-  todos:
+  books:
     build: .
     ports:
       - 80:3000

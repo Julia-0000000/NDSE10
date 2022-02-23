@@ -1,12 +1,10 @@
-const uidGenerator = require('node-unique-id-generator');
+const { Schema, model } = require('mongoose');
 
-class User {
-  constructor({
-    mail = '',
-  }) {
-    this.id = uidGenerator.generateUniqueId();
-    this.mail = mail;
-  }
-}
+const userSchema = new Schema({
+  mail: {
+    type: String,
+    required: true,
+  },
+});
 
-module.exports = User;
+module.exports = model('User', userSchema);
